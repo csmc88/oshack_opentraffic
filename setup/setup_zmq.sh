@@ -1,5 +1,16 @@
 # Basic Server Installs
+sudo apt-get clean
 sudo apt-get update
+
+sudo apt-get install -y dpkg
+sudo dpkg --configure -a &&
+sudo apt-get install -y python-setuptools i2c-tools &&
+sudo apt-get install -y make autoconf automake &&
+sudo apt-get install -y libtool unzip
+sudo apt-get install -y build-essential manpages-dev
+sudo apt-get install -y pkg-config
+sudo apt-get install -y python-dev
+sudo apt-get install -y screen
 
 #libzmq
 cd /tmp
@@ -29,7 +40,13 @@ mkdir -p ~/opentraffic
 # wget files in repo
 cd opentraffic
 #wget messenger
+wget https://raw.githubusercontent.com/csmc88/oshack_opentraffic/master/control_interception.py
+wget https://raw.githubusercontent.com/csmc88/oshack_opentraffic/master/courier.py
+wget https://raw.githubusercontent.com/csmc88/oshack_opentraffic/master/TrayectoriaCarro.py
 
+if [ $1 == "intersection"]; then
+    screen -S intersection_control -dm "python intersection.py -u intersection1 > allout.txt 2>&1"
+fi
 
 # if $1 is intersection
     #wget intersection

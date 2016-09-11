@@ -27,10 +27,10 @@ class interception(object):
         # Start local sub/pub
         local = ['localhost']
         local2 = ["127.0.0.1"]
-        self.hermes = courier.apollo(['*'], local2, self.uuid, True)
+        self.courier = courier.apollo(['*'], local2, self.uuid, True)
 
     def ReceiveUpdate(self):
-        car_update = self.hermes.ReceiveMessages()
+        car_update = self.courier.ReceiveMessages()
         for key, value in car_update.iteritems()
             self.info[key] = value 
         #make list #sort cars list
@@ -127,12 +127,12 @@ class interception(object):
         if len(to_reduce) > 0:
             for car in to_reduce:
                 new_speed = {'speed' : [reduce_percent*x for x in car['speed']]}
-                msg = self.hermes.MakeMessage(car['uuid'] + ':' + self.uuid, new_speed)
-                self.hermes.SendMessage(msg)
+                msg = self.courier.MakeMessage(car['uuid'] + ':' + self.uuid, new_speed)
+                self.courier.SendMessage(msg)
         for car in the_rest:
             new_speed = {'speed' : car['speed']}
-            msg = self.hermes.MakeMessage(car['uuid'] + ':' + self.uuid, new_speed)
-            self.hermes.SendMessage(msg)
+            msg = self.courier.MakeMessage(car['uuid'] + ':' + self.uuid, new_speed)
+            self.courier.SendMessage(msg)
 
 
 args = sys.argv
