@@ -2,8 +2,8 @@ import zmq
 import json
 import time
 
-PUBPORT = 5555
-SUBPORT = 5556
+ITS_PUBPORT = 5555
+ITS_SUBPORT = 5556
 # cambiar funcion de ReceiveMessage con un time_limit o no_stop option para recibir todos los mensajes de carros
 # sin saber cuantos carros hay. Asi nos ahorramos problemas con carros nuevos, carros salientes, etc.
 class apollo(object):
@@ -16,22 +16,22 @@ class apollo(object):
 		# if interception only one element in pub_list and sub_list
 		if intercept_node == True:
 			self.pubs[pub_list[0]] = self.ctx.socket(zmq.PUB)
-			pub_address = "tcp://{0}:{1}".format(pub_list[0], PUBPORT)
+			pub_address = "tcp://{0}:{1}".format(pub_list[0], ITS_PUBPORT)
 			self.pubs[pub_list[0]].bind(pub_address)
 
 			self.subs = self.ctx.socket(zmq.SUB)
-			sub_address = "tcp://{0}:{1}".format(sub_list[0], SUBPORT)
+			sub_address = "tcp://{0}:{1}".format(sub_list[0], ITS_SUBPORT)
 			self.subs.bind(sub_address)
 			self.subs.setsockopt(zmq.SUBSCRIBE, sub_topic)
 		else: # GOD or CAR, which will create multiple pubs and 1 subs with multiple ports
 			for address in pub_list:
 				self.pubs[address] = self.ctx.socket(zmq.PUB)
-				pub_address = "tcp://{0}:{1}".format(address, PUBPORT)
+				pub_address = "tcp://{0}:{1}".format(address, ITS_SUBPORT)
 				self.pubs[address].connect(pub_address)
 
 			self.subs = self.ctx.socket(zmq.SUB)
 			for address in sub_list:
-				sub_address = "tcp://{0}:{1}".format(sub_list[0], SUBPORT)
+				sub_address = "tcp://{0}:{1}".format(sub_list[0], ITS_PUBPORT)
 				self.subs.connect(sub_address)
 			self.subs.setsockopt(zmq.SUBSCRIBE, sub_topic)
 		time.sleep(1)
@@ -51,12 +51,12 @@ class apollo(object):
 
 	# Modify to have a timeout of milliseconds
 	# receive first msg, then receive with timeout (milliseconds)
-	def ReceiveMessages(self, expected_responses):
+	# receives one message, returns... enables quick updates and client side management
+	def ReceiveMessages(self, expected_responses = 1):
 		output = {}
-		for i in range(expected_responses):
-			msg = self.subs.recv_multipart()
-			sender, payload = self.ParseMessage(msg)
-			output[sender] = payload
+		msg = self.subs.recv_multipart()
+		sender, payload = self.ParseMessage(msg)
+		output[sender] = payload
 		return output
 
 	def byteify(self, obj):

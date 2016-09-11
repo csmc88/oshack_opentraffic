@@ -10,6 +10,7 @@ STEP_REDUCTION=0.9
 # Receive parameters
 class interception(object):
     def __init__(self, args):
+        self.info = {}
         # Parse parameters
         try:
             opts, trails = getopt.getopt(args[1:],"u:c:",["uuid=","coords="])
@@ -25,15 +26,16 @@ class interception(object):
 
         # Start local sub/pub
         local = ['localhost']
-        self.courier = courier.apollo(local, local, self.uuid, True)
+        local2 = ["127.0.0.1"]
+        self.hermes = courier.apollo(['*'], local2, self.uuid, True)
 
     def ReceiveUpdate(self):
-        cars = self.courier.ReceiveMessages()
-        #make list
-        cars = [value for key, value in cars.iteritems()]
-        #sort cars list
-        cars = sorted(cars, key=lambda x: x['dist'])
-        self.info = cars
+        car_update = self.hermes.ReceiveMessages()
+        for key, value in car_update.iteritems()
+            self.info[key] = value 
+        #make list #sort cars list
+        self.cars = [value for key, value in self.info.iteritems()]
+        self.cars = sorted(self.cars, key=lambda x: x['dist'])
 
     @staticmethod
     def ClassifyDirection(direction):
@@ -75,7 +77,7 @@ class interception(object):
         #          'uuid'  : 1,
         #          'dist' : 1}]
         # cars is sorted by dist
-        #cars = sorted(cars, key=lambda x: x['dist'])
+        cars = self.cars
         list_indexes = range(len(cars))
 
         # sepparate into 2 lists by
@@ -125,12 +127,12 @@ class interception(object):
         if len(to_reduce) > 0:
             for car in to_reduce:
                 new_speed = {'speed' : [reduce_percent*x for x in car['speed']]}
-                msg = self.courier.MakeMessage(car['uuid'] + ':' + self.uuid, new_speed)
-                self.courier.SendMessage(msg)
+                msg = self.hermes.MakeMessage(car['uuid'] + ':' + self.uuid, new_speed)
+                self.hermes.SendMessage(msg)
         for car in the_rest:
             new_speed = {'speed' : car['speed']}
-            msg = self.courier.MakeMessage(car['uuid'] + ':' + self.uuid, new_speed)
-            self.courier.SendMessage(msg)
+            msg = self.hermes.MakeMessage(car['uuid'] + ':' + self.uuid, new_speed)
+            self.hermes.SendMessage(msg)
 
 
 args = sys.argv
